@@ -1,0 +1,89 @@
+[Authorize(Roles = "Administrator")] // Restrict access to administrators only
+public class AdminCourseController : Controller
+{
+    private readonly CourseDbContext _dbContext;
+
+    public AdminCourseController(CourseDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public IActionResult Index()
+    {
+        var courses = _dbContext.Courses.ToList();
+        return View(courses);
+    }
+
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Create(Course course)
+    {
+        if (ModelState.IsValid)
+        {
+            _dbContext.Courses.Add(course);
+            _dbContext.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        return View(course);
+    }
+
+    public IActionResult Edit(int id)
+    {
+        var course = _dbContext.Courses.Find(id);
+        if (course == null)
+        {
+            return NotFound();
+        }
+        return View(course);
+    }
+
+    [HttpPost]
+    public IActionResult Edit(Course course)
+    {
+        if (ModelState.IsValid)
+        {
+            _dbContext.Courses.Update(course);
+            _dbContext.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        return View(course);
+    }
+
+    public IActionResult ManageEnrollments(int id)
+    {
+        var course = _dbContext.Courses.Include(c => c.Enrollments).FirstOrDefault(c => c.Id == id);
+        if (course == null)
+        {
+            return NotFound();
+        }
+        return View(course);
+    }
+
+    [HttpPost]
+    public IActionResult AddEnrollment(int courseId, int studentId)
+    {
+        var existingEnrollment = _dbContext.Enrollments.FirstOrDefault(e => e.CourseId == courseId && e.StudentId == studentId);
+        if (existingEnrollment == null)
+        {
+            _dbContext.Enrollments.Add(new Enrollment { CourseId = courseId, StudentId = studentId });
+            _dbContext.SaveChanges();
+        }
+        return RedirectToAction("ManageEnrollments", new { id = courseId });
+    }
+
+    [HttpPost]
+    public IActionResult RemoveEnrollment(int courseId, int studentId)
+    {
+        var enrollment = _dbContext.Enrollments.FirstOrDefault(e => e.CourseId == courseId && e.StudentId == studentId);
+        if (enrollment != null)
+        {
+            _dbContext.Enrollments.Remove(enrollment);
+            _dbContext.SaveChanges();
+        }
+        return RedirectToAction("ManageEnrollments", new { id = courseId });
+    }
+}
