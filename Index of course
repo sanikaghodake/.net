@@ -1,7 +1,7 @@
 @model List<Course>
 
-<h2>Course Management Panel</h2>
-<p><a asp-action="Create">Add New Course</a></p>
+<h2>Available Courses</h2>
+<p>@ViewBag.Message</p>
 <table class="table">
     <thead>
         <tr>
@@ -16,13 +16,22 @@
         @foreach (var course in Model)
         {
             <tr>
-                <td>@course.Name</td>
+                <td>@course.Title</td>
                 <td>@course.Description</td>
                 <td>@course.Instructor</td>
-                <td>@course.Capacity</td>
+                <td>@course.Enrollments.Count/@course.MaxCapacity</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@course.Id">Edit</a> |
-                    <a asp-action="Delete" asp-route-id="@course.Id">Delete</a>
+                    @if (IsUserAuthenticated)
+                    {
+                        @if (course.Enrollments.Count < course.MaxCapacity)
+                        {
+                            <a asp-action="Enroll" asp-route-id="@course.Id">Enroll</a>
+                        }
+                        else
+                        {
+                            <span>Course Full</span>
+                        }
+                    }
                 </td>
             </tr>
         }
