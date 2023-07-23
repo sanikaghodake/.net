@@ -1,0 +1,102 @@
+[Authorize(Roles = "Administrator")] // Restrict access to administrators only
+public class AdminCourseController : Controller
+{
+    private readonly CourseDbContext _dbContext;
+
+    public AdminCourseController(CourseDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public IActionResult Index()
+    {
+        var courses = _dbContext.Courses.ToList();
+        return View(courses);
+    }
+
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Create(Course course)
+    {
+        if (ModelState.IsValid)
+        {
+            _dbContext.Courses.Add(course);
+            _dbContext.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        return View(course);
+    }
+
+    public IActionResult Edit(int id)
+    {
+        var course = _dbContext.Courses.Find(id);
+        if (course == null)
+        {
+            return NotFound();
+        }
+        return View(course);
+    }
+
+    [HttpPost]
+    public IActionResult Edit(Course course)
+    {
+        if (ModelState.IsValid)
+        {
+            _dbContext.Courses.Update(course);
+            _dbContext.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        return View(course);
+    }
+
+    public IActionResult ManageEnrollments(int id)
+    {
+        var course = _dbContext.Courses.Include(c => c.Enrollments).FirstOrDefault(c => c.Id == id);
+        if (course == null)
+        {
+            return NotFound();
+        }
+        return View(course);
+    }
+
+    [HttpPost]
+    public IActionResult AddEnrollment(int courseId, int studentId)
+    {
+        // Code for adding enrollments (as previously shown)
+    }
+
+    [HttpPost]
+    public IActionResult RemoveEnrollment(int courseId, int studentId)
+    {
+        // Code for removing enrollments (as previously shown)
+    }
+
+    public IActionResult Delete(int id)
+    {
+        var course = _dbContext.Courses.Find(id);
+        if (course == null)
+        {
+            return NotFound();
+        }
+        return View(course);
+    }
+
+    [HttpPost]
+    public IActionResult DeleteConfirmed(int id)
+    {
+        var course = _dbContext.Courses.Find(id);
+        if (course == null)
+        {
+            return NotFound();
+        }
+
+        _dbContext.Courses.Remove(course);
+        _dbContext.SaveChanges();
+
+        return RedirectToAction("Index");
+    }
+}
