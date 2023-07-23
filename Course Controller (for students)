@@ -1,0 +1,38 @@
+public class CourseController : Controller
+{
+    private readonly CourseDbContext _dbContext;
+
+    public CourseController(CourseDbContext dbContext)
+    {
+        dbContext = dbContext;
+    }
+
+    public IActionResult Index()
+    {
+        var courses = _dbContext.Courses.ToList();
+        return View(courses);
+    }
+
+    public IActionResult Enroll(int id)
+    {
+        // Retrieve student information (e.g., from ASP.NET Identity)
+        var studentId = GetCurrentStudentId();
+
+        // Check if the student is already enrolled in the course
+        var isEnrolled = _dbContext.Enrollments.Any(e => e.CourseId == id && e.StudentId == studentId);
+        if (isEnrolled)
+        {
+            ViewBag.Message = "You are already enrolled in this course.";
+        }
+        else
+        {
+            // Perform the enrollment
+            _dbContext.Enrollments.Add(new Enrollment { CourseId = id, StudentId = studentId });
+            _dbContext.SaveChanges();
+            ViewBag.Message = "Enrollment successful.";
+        }
+
+        var courses = _dbContext.Courses.ToList();
+        return View("Index", courses);
+    }
+}
