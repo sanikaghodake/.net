@@ -1,0 +1,30 @@
+@model List<Course>
+
+<h2>Course Management Panel</h2>
+<p><a asp-action="Create">Add New Course</a></p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>Description</th>
+            <th>Instructor</th>
+            <th>Capacity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model)
+        {
+            <tr>
+                <td>@course.Name</td>
+                <td>@course.Description</td>
+                <td>@course.Instructor</td>
+                <td>@course.Capacity</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@course.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@course.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
