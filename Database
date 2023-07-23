@@ -1,0 +1,27 @@
+CREATE DATABASE CourseEnrollmentDB;
+USE CourseEnrollmentDB;
+
+//Table for courses
+CREATE TABLE Courses (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Title NVARCHAR(100) NOT NULL,
+    Description NVARCHAR(500) NOT NULL,
+    Instructor NVARCHAR(100) NOT NULL,
+    MaxCapacity INT NOT NULL
+);
+
+// Table for students
+CREATE TABLE Students (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    -- Add other student-related columns if needed
+);
+
+//  table for course enrollments 
+CREATE TABLE Enrollments (
+    CourseId INT NOT NULL,
+    StudentId INT NOT NULL,
+    PRIMARY KEY (CourseId, StudentId),
+    FOREIGN KEY (CourseId) REFERENCES Courses(Id) ON DELETE CASCADE,
+    FOREIGN KEY (StudentId) REFERENCES Students(Id) ON DELETE CASCADE
+);
